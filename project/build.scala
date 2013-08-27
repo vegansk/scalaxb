@@ -7,7 +7,7 @@ object Builds extends Build {
   import sbtscalashim.Plugin._
 
   lazy val buildSettings = Defaults.defaultSettings ++ customLsSettings ++ Seq(
-    version := "1.1.1",
+    version := "1.1.2",
     organization := "org.scalaxb",
     homepage := Some(url("http://scalaxb.org")),
     licenses := Seq("MIT License" -> url("https://github.com/eed3si9n/scalaxb/blob/master/LICENSE")),
@@ -115,8 +115,10 @@ object Builds extends Build {
     sbtPlugin := true,
     description in lskeys.lsync := """sbt plugin to run scalaxb""",
     crossScalaVersions := Seq("2.9.2"),
-    publishMavenStyle := true
+    publishMavenStyle := true,
+    libraryDependencies <+= version("org.scalaxb" %% "scalaxb" % _),
     // crossSbtVersions := Seq("0.11.2", "0.11.3", "0.12")
+    scalaVersion := "2.9.2"
   ) // ++
 //    ScriptedPlugin.scriptedSettings ++ Seq(
 //    scriptedBufferLog := false
@@ -133,12 +135,12 @@ object Builds extends Build {
     case _ => Seq("org.specs2" %% "specs2" % "2.0" % "test")
   }
 
-  lazy val root = Project("root", file("."),
-    settings = buildSettings ++ Seq(name := "scalaxb")) aggregate(cli)
-  lazy val cli = Project("app", file("cli"),
-    settings = cliSettings)
-  lazy val integration = Project("integration", file("integration"),
-    settings = itSettings) dependsOn(cli % "test->compile")
+  // lazy val root = Project("root", file("."),
+  //   settings = buildSettings ++ Seq(name := "scalaxb")) aggregate(cli)
+  // lazy val cli = Project("app", file("cli"),
+  //   settings = cliSettings)
+  // lazy val integration = Project("integration", file("integration"),
+  //   settings = itSettings) dependsOn(cli % "test->compile")
   lazy val scalaxbPlugin = Project("sbt-scalaxb", file("sbt-scalaxb"),
-    settings = pluginSettings) dependsOn(cli)
+    settings = pluginSettings)
 }
