@@ -117,6 +117,8 @@ object Arguments {
         c.update(GenerateMutable).remove(VarArg) }
       opt[Unit]("visitor") text("generates visitor") action { (_,c) =>
         c.update(GenerateVisitor) }
+      opt[Unit]("hide-enum-values") text("hides enum values inside the companion object") action { (_,c) =>
+        c.update(HideEnumValues) }
       opt[Unit]("lax-any") text("relaxes namespace constraints of xs:any") action { (_, c) =>
         c.update(LaxAny) }
       opt[Unit]("blocking") text("generates blocking SOAP client") action { (_, c) =>

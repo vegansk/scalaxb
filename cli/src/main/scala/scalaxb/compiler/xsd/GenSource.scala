@@ -584,6 +584,7 @@ class GenSource(val schema: SchemaDecl,
       makeImplicitValue(group))
   }
   
+  //***************************
   def makeEnumType(decl: SimpleTypeDecl) = {
     val localName = buildTypeName(decl, true)
     val fqn = buildTypeName(decl, false)
@@ -593,9 +594,9 @@ class GenSource(val schema: SchemaDecl,
     val baseSym : Option[XsTypeSymbol] = decl.content match {case SimpTypRestrictionDecl(base, _) => Some(base) case _ => None}
     val baseType: Option[String      ] = baseSym.map(buildTypeName(_))
 
-    def makeEnum(enum: EnumerationDecl[_]) =
-      "case object " + buildTypeName(localName, enum, true) + " extends " + localName + 
-      " { override def toString = " + quote(enum.value.toString) + " }"
+    def makeEnum(indentLevel: Int)(enum: EnumerationDecl[_]) =
+      s"${indent(indentLevel)}case object ${buildTypeName(localName, enum, true)} extends ${localName} " +
+      s"{ override def toString = ${quote(enum.value.toString)} }"
     
     def makeCaseEntry(enum: EnumerationDecl[_]) = baseSym match {
       case Some(XsQName) => s"${indent(3)}case ${quote(enum.value.toString)} => ${buildTypeName(localName, enum, false)}\n"
@@ -607,7 +608,7 @@ class GenSource(val schema: SchemaDecl,
     }
 
     
-    val enumString = enums.map(makeEnum).mkString(newline)
+    val enumString = enums.map(makeEnum(if(config.hideEnumValues) 1 else 0)).mkString(newline)
 
     def valueCode: String = baseSym match {
         case Some(XsQName) => """({ val (ns, localPart) = scalaxb.Helper.splitQName(value, scope)
@@ -625,14 +626,13 @@ object {localName} {{
       case _ =>
 <source>trait {localName}
 
-object {localName} {{
+object {localName} {{{ if(config.hideEnumValues) "\n" + enumString else "" }
   def fromString(value: String, scope: scala.xml.NamespaceBinding)(implicit fmt: scalaxb.XMLFormat[{fqn}]): {localName} = fmt.reads(scala.xml.Text(value), Nil) match {{
     case Right(x: {localName}) => x
     case x => throw new RuntimeException(s"fromString returned unexpected value $x for input $value")
   }}
 }}
-
-{ enumString }</source>
+{ if(!config.hideEnumValues) "\n" + enumString else "" }</source>
     }  // match
         
     Snippet(traitCode,
@@ -658,6 +658,7 @@ object {localName} {{
   }}</source>,
       makeImplicitValue(fqn, formatterName))
   }
+  //***************************
 
   def buildEffectiveMixed(decl: ComplexTypeDecl): Boolean =
     decl.content match {

@@ -23,13 +23,14 @@
 package scalaxb.compiler.xsd
 
 import scalashim._
-import scalaxb.compiler.{Log, ReferenceNotFound}
+import scalaxb.compiler.{Log, ReferenceNotFound, Config}
 import scala.collection.mutable
 
 trait Lookup extends ContextProcessor {
   private val logger = Log.forName("xsd.Lookup")
   def schema: SchemaDecl
   def context: XsdContext
+  def config: Config
   
   val schemas = context.schemas.toList
   val compositorWrapper = mutable.ListMap.empty[ComplexTypeDecl, HasParticle]
@@ -181,9 +182,10 @@ trait Lookup extends ContextProcessor {
     val typeNames = context.enumValueNames(pkg)
     if (!typeNames.contains(enumTypeName, enum))
       sys.error(pkg + ": Type name not found: " + enum.toString)
-    
-    if (shortLocal && pkg == packageName(schema, context)) typeNames(enumTypeName, enum)
-    else buildFullyQualifiedNameFromPackage(pkg, typeNames(enumTypeName, enum))   
+    val local = shortLocal && pkg == packageName(schema, context)
+    val enumValue = if(config.hideEnumValues && !local) enumTypeName + "." + typeNames(enumTypeName, enum) else typeNames(enumTypeName, enum)
+    if (local) enumValue
+    else buildFullyQualifiedNameFromPackage(pkg, enumValue)
   }
   
   def buildFullyQualifiedNameFromNS(namespace: Option[String], localName: String): String = {

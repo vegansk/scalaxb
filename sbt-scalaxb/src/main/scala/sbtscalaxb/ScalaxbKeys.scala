@@ -39,6 +39,7 @@ trait ScalaxbKeys {
   lazy val scalaxbAsync            = settingKey[Boolean]("Generates async SOAP client")
   lazy val scalaxbIgnoreUnknown    = settingKey[Boolean]("Ignores unknown Elements")
   lazy val scalaxbVararg           = settingKey[Boolean]("Uses varargs when possible. (default: false)")
+  lazy val scalaxbHideEnumValues   = settingKey[Boolean]("Hides enum values inside the companion object. (default: false)")
 
   object HttpClientType extends Enumeration {
     val None, Dispatch, Gigahorse = Value

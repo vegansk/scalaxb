@@ -82,6 +82,7 @@ object ScalaxbPlugin extends sbt.AutoPlugin {
     scalaxbGenerateMutable         := false,
     scalaxbGenerateVisitor         := false,
     scalaxbAutoPackages            := false,
+    scalaxbHideEnumValues          := false,
     scalaxbConfig :=
       ScConfig(
         Vector(PackageNames(scalaxbCombinedPackageNames.value)) ++
@@ -122,7 +123,8 @@ object ScalaxbPlugin extends sbt.AutoPlugin {
         (if (scalaxbVararg.value && !scalaxbGenerateMutable.value) Vector(VarArg) else Vector()) ++
         (if (scalaxbGenerateMutable.value) Vector(GenerateMutable) else Vector()) ++
         (if (scalaxbGenerateVisitor.value) Vector(GenerateVisitor) else Vector()) ++
-        (if (scalaxbAutoPackages.value) Vector(AutoPackages) else Vector())
+        (if (scalaxbAutoPackages.value) Vector(AutoPackages) else Vector()) ++
+        (if (scalaxbHideEnumValues.value) Vector(HideEnumValues) else Vector())
       )
   ))
 }
